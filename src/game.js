@@ -6,11 +6,12 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: "",
-      puzzle: [1, 2, 3, 4, 5, 6, 7, 0],
+      name: "leslie",
+      puzzle: [1, 2, 3, 4, 5, 6, 7, 0, 8],
       step: 0,
       isGameOver: false
     };
+    props.updateScore();
     this.handleName = this.handleName.bind(this);
     this.movePiece = this.movePiece.bind(this);
     this.shuffle = this.shuffle.bind(this);
@@ -30,13 +31,24 @@ export default class Game extends React.Component {
       this.swapPiece(targetIndex, emptyIndex);
     }
   }
+
   swapPiece(targetIndex, emptyIndex) {
     let moved = this.state.puzzle.slice(0);
     let targetPiece = moved[targetIndex];
     moved[emptyIndex] = targetPiece;
     moved[targetIndex] = 0;
+
+    if (this.validSolution(moved)) {
+      this.setState({isGameOver: true});
+      let player = {};
+      // playerData[this.state.name] = this.state.step;
+      player.name = this.state.name;
+      player.step = this.state.step;
+      this.props.updateScore(player);
+    }
     this.setState({puzzle: moved, step: this.state.step + 1});
   }
+
   checkPossibleMove(targetIndex) {
     let emptyIndex = this.state.puzzle.findIndex(piece => piece === 0);
     let boardRowNum = 3;
@@ -72,28 +84,26 @@ export default class Game extends React.Component {
     }
     this.setState({puzzle: puzzleArr});
   }
-  validSolution() {
-    let isGameOver =
-            this.state.puzzle
-              .slice(0, 8)
-              .filter((piece, index) => +piece !== index + 1).length === 0;
-    if (isGameOver) {
-      this.setState({isGameOver: true});
-    }
+  validSolution(puzzle) {
+    return (
+      puzzle.slice(0, 8).filter((piece, index) => +piece !== index + 1)
+        .length === 0
+    );
   }
   render() {
+    console.log("------------");
+    console.log(this.state);
     let puzzle = this.state.puzzle.map((num, index) => (
       <div key={index} onClick={() => this.movePiece(index)}>
         <span> {num !== 0 ? num : ""}</span>
       </div>
     ));
-    let solvedText = this.validSolution() ? "你贏了" : "";
     return (
       <div>
         <input value={this.state.name} onChange={this.handleName} />
         <button disabled={!this.state.name.length}>start</button>
         <div>step count:{this.state.step}</div>
-        <div>{solvedText}</div>
+        <div>{this.state.isGameOver ? "你贏惹" : ""}</div>
         <div className="puzzle"> {puzzle}</div>
         <button onClick={this.shuffle}>洗牌</button>
       </div>
@@ -104,19 +114,22 @@ export default class Game extends React.Component {
 export class Rank extends React.Component {
   constructor(props) {
     super(props);
+
+    console.log(this.props.ranking);
   }
   render() {
-    return <div>Ranking</div>;
+    console.log("-----------------xxxxxxxxxxx----");
+    console.log(this.props.ranking);
+    let rankList = this.props.ranking.map((player, index) => {
+      return (
+        <div key={index}>
+          {player.name} : {player.step}
+        </div>
+      );
+    });
+    if (!this.props.ranking.length) {
+      return <div>no player data</div>;
+    }
+    return <div>{rankList}</div>;
   }
 }
-
-// let target;
-// if(dir === "up"){
-
-// } else if (dir === "down"){
-
-// } else if(dir ==="left"){
-
-// } else if(dir === "right"){
-
-// }

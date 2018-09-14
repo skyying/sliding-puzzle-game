@@ -11,7 +11,7 @@ main{
       margin-right: 10px;
       border: 1px solid red; /* remove it */
     }
-  margin-bottom: 20px;
+    margin-bottom: 20px;
   }
 }
 .puzzle{
@@ -30,4 +30,27 @@ main{
 
     }
   }
+}
+
+
+.ko {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: none;
+  width: 100%;
+  height: 100%;
+  line-height: 300px;
+  text-align: center;
+  color: #008800;
+  font-size: 120px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  z-index: 3;
+  animation: bomb 0.8s;
+  animation-timing-function: cubic-bezier(1,.04,.95,.64);
+}
+
+.show {
+  display: block;
 }
