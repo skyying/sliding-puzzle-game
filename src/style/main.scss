@@ -1,0 +1,33 @@
+main{
+  display: flex;
+  justify-content: center;
+  align-content:center;
+
+  .tab {
+    display: flex;
+    justify-content: center;
+    align-content:center;
+    a {
+      margin-right: 10px;
+      border: 1px solid red; /* remove it */
+    }
+  margin-bottom: 20px;
+  }
+}
+.puzzle{
+  margin-top: 20px;
+  display: grid;
+  grid-template: 100px 100px 100px / 100px 100px 100px;
+  div {
+    border: 1px solid #eee; /* remove it */
+    font-size: 35px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    cursor: pointer;
+    span {
+      margin-top: 25px;
+
+    }
+  }
+}
