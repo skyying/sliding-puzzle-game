@@ -1,17 +1,10 @@
 import "./style/main.scss";
 import React from "react";
 import ReactDOM from "react-dom";
-import {
-  IndexRoute,
-  BrowserRouter,
-  Router,
-  Link,
-  Route,
-  Switch
-} from "react-router-dom";
+import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
+import Game from "./components/game.js";
+import Rank from "./components/rank.js";
 
-import Game from "./game.js";
-import {Rank} from "./game.js";
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -20,37 +13,33 @@ class App extends React.Component {
       tab: window.location.pathname
     };
     this.updateRanking = this.updateRanking.bind(this);
-    this.updatePuzzle = this.updatePuzzle.bind(this);
   }
   updateRanking(playerData) {
     if (!playerData) return;
-    let localStorage = window.localStorage;
-    let localRankingData = JSON.parse(localStorage.getItem("rank"));
-    let rankingList;
-    if (!localRankingData) {
-      localRankingData = [playerData];
-    } else {
-      localRankingData.push(playerData);
-    }
-    localStorage.setItem("rank", JSON.stringify(localRankingData));
-  }
-  setTab(tab) {
-    this.setState({tab: tab});
-  }
-  updatePuzzle(puzzle) {
-    this.setState({puzzle: puzzle});
-  }
-  render() {
-    let currentTab = window.location.pathname;
-    console.log(currentTab);
 
+    let localStorage = window.localStorage,
+      rankData = JSON.parse(localStorage.getItem("rank"));
+
+    if (!rankData) {
+      rankData = [playerData];
+    } else {
+      rankData.push(playerData);
+    }
+
+    localStorage.setItem("rank", JSON.stringify(rankData));
+  }
+  updateState(state) {
+    this.setState(state);
+  }
+
+  render() {
     return (
       <main>
         <BrowserRouter>
           <div>
             <div className="tab">
               <Link
-                onClick={() => this.setTab("/")}
+                onClick={() => this.setState({tab: "/"})}
                 className={
                   this.state.tab === "/" ? "active" : ""
                 }
@@ -58,7 +47,7 @@ class App extends React.Component {
                                 Game
               </Link>
               <Link
-                onClick={() => this.setTab("/rank")}
+                onClick={() => this.setState({tab: "/rank"})}
                 className={
                   this.state.tab === "/rank" ? "active" : ""
                 }
@@ -70,7 +59,7 @@ class App extends React.Component {
               <Route
                 path="/"
                 render={() => (
-                  <Game updateScore={this.updateRanking} />
+                  <Game updateRanking={this.updateRanking} />
                 )}
                 exact
               />
