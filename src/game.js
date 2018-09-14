@@ -1,6 +1,8 @@
 import "./style/main.scss";
 import React from "react";
 import ReactDOM from "react-dom";
+import { Link } from "react-router-dom";
+
 
 export default class Game extends React.Component {
   constructor(props) {
@@ -12,7 +14,6 @@ export default class Game extends React.Component {
       win: false,
       isGameOn: false
     };
-    props.updateScore();
     this.handleName = this.handleName.bind(this);
     this.movePiece = this.movePiece.bind(this);
     this.shuffle = this.shuffle.bind(this);
@@ -43,9 +44,8 @@ export default class Game extends React.Component {
     if (this.validSolution(moved)) {
       this.setState({win: true, isGameOn: false});
       let player = {};
-      // playerData[this.state.name] = this.state.step;
       player.name = this.state.playerName;
-      player.step = this.state.step;
+      player.step = this.state.step + 1;
       this.props.updateScore(player);
     }
     this.setState({puzzle: moved, step: this.state.step + 1});
@@ -92,70 +92,96 @@ export default class Game extends React.Component {
         .length === 0
     );
   }
-  startGame(){
+  startGame(mode) {
     this.setState({isGameOn: true, win: false, step: 0});
-    this.shuffle();
+    if (mode === "easy") {
+      this.easy();
+    } else {
+      this.shuffle();
+    }
   }
   easy() {
     this.setState({puzzle: [1, 2, 3, 4, 5, 6, 7, 0, 8]});
   }
 
   render() {
-    console.log("------------");
-    console.log(this.state);
     let puzzle = this.state.puzzle.map((num, index) => (
       <div key={index} onClick={() => this.movePiece(index)}>
         <span> {num !== 0 ? num : ""} </span>
       </div>
     ));
+    let disable = !this.state.playerName.length || this.state.isGameOn;
     return (
       <div>
         <input
           value={this.state.playerName}
           onChange={this.handleName}
           disabled={this.state.isGameOn}
+          placeholder="You name"
         />
-        <button
-          disabled={
-            !this.state.playerName.length || this.state.isGameOn
-          }
-          onClick={this.startGame}>
-                    start
-        </button>
-        <div>step count:{this.state.step}</div>
+          <button
+            disabled={disable}
+            onClick={() => this.startGame("hard")}>
+            Start 
+          </button>
+          <button
+            disabled={disable}
+            onClick={() => this.startGame("easy")}>
+            Easy 
+          </button>
 
-        <section
-          className={this.state.isGameOn ? "game-on" : "" }>
+        <div className="step">Step: {this.state.step}</div>
+        <section className={this.state.isGameOn ? "game-on" : ""}>
           <div className="puzzle"> {puzzle}</div>
           <div className="overlay"> </div>
-          <div className={this.state.win ? "ko" : "not-ko"}>
-                        KO
-          </div>
+          
+            <Link className={this.state.win ? "ko" : "not-ko"} to="/rank">
+              <div className="ko-wrapper">
+                <div className="large">KO</div>
+                <div>去看看你的排名吧</div>
+              </div>
+            </Link>
         </section>
-        <button onClick={this.shuffle}>洗牌</button>
-        <button onClick={this.easy}>簡易</button>
       </div>
     );
   }
 }
 
+          // <div className={this.state.win ? "ko" : "not-ko"}>
+          // </div>
 export class Rank extends React.Component {
   constructor(props) {
     super(props);
-    console.log(this.props.ranking);
   }
   render() {
-    console.log(this.props.ranking);
-    let rankList = this.props.ranking.map((player, index) => {
+    let rankData = JSON.parse(localStorage.getItem("rank")) || [];
+    let rankList = rankData.map((player, index) => {
       return (
-        <div key={index}>
-          {player.name} : {player.step}
+        <div className="player-row" key={index}>
+          <div>{index + 1}</div>
+          <div>{player.name}</div>
+          <div>{player.step}</div>
         </div>
       );
     });
-    if (!this.props.ranking.length) {
-      return <div>no player data</div>;
+    if (!rankData.length) {
+      return <div>還沒有人來玩也</div>;
     }
-    return <div>{rankList}</div>;
+    return (
+      <div>
+        <div className="player-row">
+          <div>Rank </div>
+          <div>Name</div> <div>Step</div>
+        </div>
+        {rankList}
+      </div>
+    );
   }
 }
+
+// <button
+//   disabled={ //     !this.state.playerName.length || this.state.isGameOn
+//   }
+//   onClick={this.startGame}>
+//             Start Game
+// </button>

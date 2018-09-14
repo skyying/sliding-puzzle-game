@@ -1,18 +1,67 @@
+
+body,
+html {
+  font-family:  "PingFang TC","微軟正黑體", "Microsoft JhengHei", "Helvetica Neue","Helvetica","Arial",sans-serif;
+  font-weight: normal;
+}
+
 main{
   display: flex;
   justify-content: center;
   align-content:center;
 
   .tab {
+    margin-top: 15px;
     display: flex;
     justify-content: center;
     align-content:center;
     a {
-      margin-right: 10px;
-      border: 1px solid red; /* remove it */
+      color: #333;
+      border-radius: 2px;
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid #fff;
+      transition: 0.5s all;
+      &:hover{
+        color: #fff;
+        background-color: #333;
+        border: 1px solid #333;
+        transition: 0.5s all;
+      }
+    }
+    a.active {
+      border: 1px solid #333;
     }
     margin-bottom: 20px;
   }
+
+  input {
+    border:1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+  .step {
+    font-size: 14px;
+    padding: 5px 0;
+
+  }
+  
+  button {
+    &:nth-child(2){
+      margin-right: 10px;
+    }
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    padding: 2px 10px;
+    font-size: 14px;
+    color: #333;
+    &:disabled{
+      color: #ccc;
+    }
+  }
+
 }
 .puzzle{
   margin-top: 20px;
@@ -42,15 +91,31 @@ section{
     top: 0px;
     left: 0px;
   }
+  .ko {
+    width: auto;
+    height: auto;
+    top: 13%;
+    left: 16%;
+
+  }
+  .ko-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
   .ko, .not-ko {
-    line-height: 300px;
-    text-align: center;
-    color: #008800;
-    font-size: 120px;
-    font-weight: bold;
-    letter-spacing: 5px;
-    animation: bomb 0.8s;
-    animation-timing-function: cubic-bezier(1,.04,.95,.64);
+    text-decoration: none;
+    .large{
+      font-size: 120px;
+      font-weight: bold;
+      letter-spacing: 5px;
+    }
+    div {
+      font-size: 14px;
+      text-align: center;
+      color: #008800;
+    }
   }
   .not-ko{
     display: none;
@@ -76,4 +141,13 @@ section{
   }
 }
 
+.player-row{
+  display: grid;
+  grid-template: 1fr / 100px 100px 100px;
+  > div {
+    padding: 10px 0;
+    text-align:center;
+    border-bottom: 1px solid #333;
+  }
 
+}
