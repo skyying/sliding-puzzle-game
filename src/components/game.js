@@ -1,5 +1,6 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import {getRandomInt} from "../components/helper.js";
+import {SlidingGameConfig, getCorrectPuzzle} from "../components/config.js";
 
 export default class Game extends React.Component {
   constructor(props) {
@@ -9,12 +10,13 @@ export default class Game extends React.Component {
       puzzle: [1, 2, 3, 4, 5, 6, 7, 0, 8],
       step: 0,
       isWin: false,
-      isGameOn: false
+      isGameStart: false
     };
+    this.emptyPiece = 0;
     this.handleName = this.handleName.bind(this);
     this.movePiece = this.movePiece.bind(this);
     this.shuffle = this.shuffle.bind(this);
-    this.validSolution = this.validSolution.bind(this);
+    this.isAnswerCorrect = this.isAnswerCorrect.bind(this);
     this.checkPossibleMove = this.checkPossibleMove.bind(this);
     this.swapPiece = this.swapPiece.bind(this);
     this.startGame = this.startGame.bind(this);
@@ -26,29 +28,37 @@ export default class Game extends React.Component {
   movePiece(targetIndex) {
     let emptyIndex = this.state.puzzle.findIndex(piece => piece === 0);
 
+    // base case
     if (targetIndex === emptyIndex) return;
+
     if (this.checkPossibleMove(targetIndex)) {
       this.swapPiece(targetIndex, emptyIndex);
     }
   }
   swapPiece(targetIndex, emptyIndex) {
-    let moved = this.state.puzzle.slice(0);
-    let targetPiece = moved[targetIndex];
-    moved[emptyIndex] = targetPiece;
-    moved[targetIndex] = 0;
+    let swappedPuzzle = this.state.puzzle.slice(0),
+      targetPiece = swappedPuzzle[targetIndex];
 
-    if (this.validSolution(moved)) {
-      this.setState({isWin: true, isGameOn: false});
+    // swap those two pieces
+    swappedPuzzle[emptyIndex] = targetPiece;
+    swappedPuzzle[targetIndex] = this.emptyPiece;
+
+    // check if answer is correct after swapped
+    if (this.isAnswerCorrect(swappedPuzzle)) {
+      this.setState({isWin: true, isGameStart: false});
       let player = {};
       player.name = this.state.playerName;
       player.step = this.state.step + 1;
       this.props.updateRanking(player);
     }
-    this.setState({puzzle: moved, step: this.state.step + 1});
-  }
 
+    this.setState({puzzle: swappedPuzzle, step: this.state.step + 1});
+  }
   checkPossibleMove(targetIndex) {
-    let emptyIndex = this.state.puzzle.findIndex(piece => piece === 0);
+    let emptyIndex = this.state.puzzle.findIndex(
+      piece => piece === this.emptyPiece,
+    );
+
     let boardRowNum = 3;
 
     // check if in same row, then check if in the same column;
@@ -63,33 +73,35 @@ export default class Game extends React.Component {
     );
   }
   shuffle() {
-    const getRandomInt = (min, max) => {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    let swapTimes = Math.floor(Math.random() * 1000) * 2;
-    let i = 0;
-    let puzzleArr = Array.from({length: 9})
-      .fill(0)
-      .map((piece, index) => index);
+    let shuffleTimes = 1000;
+
+    // make sure they are swapped even times
+    let swapTimes = Math.floor(Math.random() * shuffleTimes) * 2,
+      puzzle = getCorrectPuzzle(),
+      i = 0;
+
     while (i < swapTimes) {
       // handle swap boundary;
-      let randomIndex = getRandomInt(1, 8);
-      let prev = puzzleArr[randomIndex - 1],
-        current = puzzleArr[randomIndex];
-      puzzleArr[randomIndex] = prev;
-      puzzleArr[randomIndex - 1] = current;
+      let randomIndex = getRandomInt(1, SlidingGameConfig.blocks - 1);
+      let prev = puzzle[randomIndex - 1],
+        current = puzzle[randomIndex];
+
+      // swap two adjacent piece
+      puzzle[randomIndex] = prev;
+      puzzle[randomIndex - 1] = current;
+
       i++;
     }
-    this.setState({puzzle: puzzleArr});
+    this.setState({puzzle: puzzle});
   }
-  validSolution(puzzle) {
+  isAnswerCorrect(puzzle) {
     return (
       puzzle.slice(0, 8).filter((piece, index) => +piece !== index + 1)
         .length === 0
     );
   }
   startGame(mode) {
-    this.setState({isGameOn: true, isWin: false, step: 0});
+    this.setState({isGameStart: true, isWin: false, step: 0});
     if (mode === "easy") {
       this.goEasyMode();
     } else {
@@ -106,13 +118,13 @@ export default class Game extends React.Component {
         <span> {num !== 0 ? num : ""} </span>
       </div>
     ));
-    let disable = !this.state.playerName.length || this.state.isGameOn;
+    let disable = !this.state.playerName.length || this.state.isGameStart;
     return (
       <div>
         <input
           value={this.state.playerName}
           onChange={this.handleName}
-          disabled={this.state.isGameOn}
+          disabled={this.state.isGameStart}
           placeholder="You name"
         />
         <button
@@ -127,7 +139,7 @@ export default class Game extends React.Component {
         </button>
 
         <div className="step">Step: {this.state.step}</div>
-        <section className={this.state.isGameOn ? "game-on" : ""}>
+        <section className={this.state.isGameStart ? "game-on" : ""}>
           <div className="puzzle"> {puzzle}</div>
           <div className="overlay"> </div>
 
