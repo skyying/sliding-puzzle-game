@@ -24,8 +24,8 @@ class App extends React.Component {
       rankData = [playerData];
     } else {
       rankData.push(playerData);
+      rankData.sort((a, b) =>   +a["step"] - +b["step"] );
     }
-
     localStorage.setItem("rank", JSON.stringify(rankData));
   }
   updateState(state) {
