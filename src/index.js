@@ -15,22 +15,22 @@ import {Rank} from "./game.js";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {ranking: []};
+    this.state = {
+      ranking: []
+    };
     this.updateRanking = this.updateRanking.bind(this);
+    this.updatePuzzle = this.updatePuzzle.bind(this);
   }
   updateRanking(playerData) {
-    if(!playerData) return;
-    console.log("in updateRanking");
-    console.log("playerData", playerData);
+    if (!playerData) return;
     let rankList = this.state.ranking.slice(0);
     rankList.push(playerData);
-    console.log(rankList);
-    console.log("rankList", rankList);
     this.setState({ranking: rankList});
   }
+  updatePuzzle(puzzle) {
+    this.setState({puzzle: puzzle});
+  }
   render() {
-    console.log("----------this.state.ranking");
-    console.log(this.state.ranking);
     return (
       <main>
         <BrowserRouter>
