@@ -36,15 +36,16 @@ export default class Game extends React.Component {
     }
   }
   swapPiece(targetIndex, emptyIndex) {
-    let swappedPuzzle = this.state.puzzle.slice(0),
-      targetPiece = swappedPuzzle[targetIndex];
+    let swapped = this.state.puzzle.slice(0);
 
-    // swap those two pieces
-    swappedPuzzle[emptyIndex] = targetPiece;
-    swappedPuzzle[targetIndex] = this.emptyPiece;
+    // swap current piece and emptyPiece
+    [swapped[targetIndex], swapped[emptyIndex]] = [
+      swapped[emptyIndex],
+      swapped[targetIndex]
+    ];
 
     // check if answer is correct after swapped
-    if (this.isAnswerCorrect(swappedPuzzle)) {
+    if (this.isAnswerCorrect(swapped)) {
       this.setState({isWin: true, isGameStart: false});
       let player = {};
       player.name = this.state.playerName;
@@ -52,14 +53,14 @@ export default class Game extends React.Component {
       this.props.updateRanking(player);
     }
 
-    this.setState({puzzle: swappedPuzzle, step: this.state.step + 1});
+    this.setState({puzzle: swapped, step: this.state.step + 1});
   }
   checkPossibleMove(targetIndex) {
     let emptyIndex = this.state.puzzle.findIndex(
       piece => piece === this.emptyPiece,
     );
 
-    let boardRowNum = 3;
+    let boardRowNum = Math.sqrt(SlidingGameConfig.blocks);
 
     // check if in same row, then check if in the same column;
     // piece in the same column should have same remaining, in the same row should have
@@ -96,12 +97,16 @@ export default class Game extends React.Component {
   }
   isAnswerCorrect(puzzle) {
     return (
-      puzzle.slice(0, 8).filter((piece, index) => +piece !== index + 1)
-        .length === 0
+      puzzle
+        .slice(0, SlidingGameConfig.blocks - 1)
+        .filter((piece, index) => +piece !== index + 1).length === 0
     );
   }
   startGame(mode) {
+
+    // reset state
     this.setState({isGameStart: true, isWin: false, step: 0});
+
     if (mode === "easy") {
       this.goEasyMode();
     } else {
@@ -115,7 +120,7 @@ export default class Game extends React.Component {
   render() {
     let puzzle = this.state.puzzle.map((num, index) => (
       <div key={index} onClick={() => this.movePiece(index)}>
-        <span> {num !== 0 ? num : ""} </span>
+        <span> {num !== this.emptyPiece ? num : ""} </span>
       </div>
     ));
     let disable = !this.state.playerName.length || this.state.isGameStart;
